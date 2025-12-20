@@ -5,9 +5,32 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from ..config import SHELL_TIMEOUT_SECONDS, DEFAULT_ENCODING
+from ..config import (
+    SHELL_TIMEOUT_SECONDS, 
+    DEFAULT_ENCODING,
+    BLOCKED_PATTERNS,
+    SUDO_NEEDS_CONFIRMATION,
+)
 from ..state import state
 from ..utils.output import truncate_output
+
+
+def check_command_safety(command: str) -> tuple[bool, str]:
+    """Prüft ob ein Befehl sicher ist.
+    
+    Returns:
+        (is_safe, message) - False + Fehlermeldung wenn geblockt
+    """
+    # Gegen Blocked Patterns prüfen
+    for pattern in BLOCKED_PATTERNS:
+        if pattern.search(command):
+            return False, f"❌ Blocked: Gefährliches Pattern erkannt ({pattern.pattern})"
+    
+    # Sudo-Warnung
+    if SUDO_NEEDS_CONFIRMATION and command.strip().startswith('sudo '):
+        return False, "⚠️ Sudo-Befehl erkannt. Bitte explizit bestätigen."
+    
+    return True, ""
 
 
 # --- Input Models ---
@@ -38,6 +61,11 @@ async def shell_exec(params: ShellExecInput) -> str:
     Für lang laufende Prozesse den Timeout erhöhen.
     Für interaktive Befehle (vim, less, etc.) nicht geeignet.
     """
+    # Sicherheitsprüfung
+    is_safe, message = check_command_safety(params.command)
+    if not is_safe:
+        return message
+    
     # Working Directory bestimmen
     if params.working_dir:
         cwd = state.resolve_path(params.working_dir)
