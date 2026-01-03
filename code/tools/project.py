@@ -1,22 +1,12 @@
 """Project-Tools: Verzeichniswechsel und Projekt-Kontext."""
 
-from pydantic import BaseModel, Field
+from typing import Annotated
 
-from ..config import PROJECT_FILE
-from ..state import state
-from ..persistence import session_manager
+from pydantic import Field
 
-
-# --- Input Models ---
-
-class ChangeDirInput(BaseModel):
-    """Input für cd."""
-    path: str = Field(..., description="Neues Working Directory")
-
-
-class ProjectInitInput(BaseModel):
-    """Input für project_init."""
-    path: str = Field(default=".", description="Projektverzeichnis")
+from config import PROJECT_FILE
+from state import state
+from persistence import session_manager
 
 
 # --- Tool Functions ---
@@ -36,13 +26,15 @@ async def cwd() -> str:
     return result
 
 
-async def cd(params: ChangeDirInput) -> str:
+async def cd(
+    path: Annotated[str, Field(description="Neues Working Directory")],
+) -> str:
     """Wechselt das Working Directory.
     
     Lädt automatisch CLAUDE.md falls im Zielverzeichnis vorhanden.
     Initialisiert oder lädt eine Session für das Projekt.
     """
-    new_path = state.resolve_path(params.path)
+    new_path = state.resolve_path(path)
     
     if not new_path.exists():
         return f"Fehler: Verzeichnis existiert nicht: {new_path}"
@@ -73,7 +65,9 @@ async def cd(params: ChangeDirInput) -> str:
     return result
 
 
-async def project_init(params: ProjectInitInput) -> str:
+async def project_init(
+    path: Annotated[str, Field(description="Projektverzeichnis")] = ".",
+) -> str:
     """Initialisiert Projekt-Kontext aus CLAUDE.md.
     
     Liest CLAUDE.md aus dem angegebenen Verzeichnis und gibt
@@ -81,21 +75,21 @@ async def project_init(params: ProjectInitInput) -> str:
     
     Falls kein CLAUDE.md existiert, wird eine Vorlage vorgeschlagen.
     """
-    path = state.resolve_path(params.path)
+    resolved = state.resolve_path(path)
     
-    if not path.exists():
-        return f"Fehler: Verzeichnis existiert nicht: {path}"
+    if not resolved.exists():
+        return f"Fehler: Verzeichnis existiert nicht: {resolved}"
     
-    if not path.is_dir():
-        return f"Fehler: Kein Verzeichnis: {path}"
+    if not resolved.is_dir():
+        return f"Fehler: Kein Verzeichnis: {resolved}"
     
-    project_file = path / PROJECT_FILE
+    project_file = resolved / PROJECT_FILE
     
     if project_file.exists():
         try:
             content = project_file.read_text(encoding="utf-8")
             state.project_context = content
-            return f"📋 {PROJECT_FILE} aus {path}:\n\n{content}"
+            return f"📋 {PROJECT_FILE} aus {resolved}:\n\n{content}"
         except Exception as e:
             return f"Fehler beim Lesen von {PROJECT_FILE}: {e}"
     else:
@@ -119,7 +113,7 @@ async def project_init(params: ProjectInitInput) -> str:
 ## Notizen
 [Sonstiges]
 """
-        return f"""Keine {PROJECT_FILE} in {path} gefunden.
+        return f"""Keine {PROJECT_FILE} in {resolved} gefunden.
 
 Erstelle eine mit folgendem Template:
 
@@ -127,5 +121,5 @@ Erstelle eine mit folgendem Template:
 {template}
 ```
 
-Nutze: file_write(path="{path / PROJECT_FILE}", content="...")
+Nutze: file_write(path="{resolved / PROJECT_FILE}", content="...")
 """

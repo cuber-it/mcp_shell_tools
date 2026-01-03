@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from .models import SessionData, MemoryEntry
+from persistence.models import SessionData, MemoryEntry
 
 
 class SessionManager:

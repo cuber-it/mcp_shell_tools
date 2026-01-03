@@ -5,14 +5,14 @@ from typing import Optional, Annotated
 
 from pydantic import Field
 
-from ..config import (
-    SHELL_TIMEOUT_SECONDS, 
+from config import (
+    SHELL_TIMEOUT_SECONDS,
     DEFAULT_ENCODING,
     BLOCKED_PATTERNS,
     SUDO_NEEDS_CONFIRMATION,
 )
-from ..state import state
-from ..utils.output import truncate_output
+from state import state
+from utils.output import truncate_output
 
 
 def check_command_safety(command: str) -> tuple[bool, str]:

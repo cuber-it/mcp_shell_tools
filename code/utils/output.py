@@ -1,6 +1,6 @@
 """Output-Formatierung und Truncation."""
 
-from ..config import MAX_OUTPUT_BYTES, DEFAULT_ENCODING
+from config import MAX_OUTPUT_BYTES, DEFAULT_ENCODING
 
 
 def truncate_output(text: str, max_bytes: int = MAX_OUTPUT_BYTES) -> str:

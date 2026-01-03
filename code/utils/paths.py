@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from ..state import state
+from state import state
 
 
 def resolve_path(path: str) -> Path:

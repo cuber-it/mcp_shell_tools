@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from .config import INITIAL_WORKING_DIR, PROJECT_FILE
+from config import INITIAL_WORKING_DIR, PROJECT_FILE
 
 
 @dataclass

@@ -41,7 +41,11 @@ htmlcov/
 .mypy_cache/
 
 # Local session data (optional - ggf. committen wenn gewünscht)
-# ~/.workstation_mcp/ liegt außerhalb des Repos
+# ~/.mcp_shell_tools/ liegt außerhalb des Repos
+
+# Config - alle außer Beispiel ignorieren
+config/*
+!config/config.example.yaml
 
 # OS
 .DS_Store

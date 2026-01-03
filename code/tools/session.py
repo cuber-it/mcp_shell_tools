@@ -1,34 +1,18 @@
 """Session-Tools: Speichern, Laden, Auflisten von Sessions."""
 
-from typing import Optional
+from typing import Optional, Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from ..persistence import session_manager
-from ..state import state
-
-
-# --- Input Models ---
-
-class SessionSaveInput(BaseModel):
-    """Input für session_save."""
-    summary: str = Field(
-        default="",
-        description="Zusammenfassung des aktuellen Stands (was wurde erreicht, was steht an)"
-    )
-
-
-class SessionResumeInput(BaseModel):
-    """Input für session_resume."""
-    project_name: Optional[str] = Field(
-        default=None,
-        description="Name des Projekts. Ohne Angabe: letzte Session."
-    )
+from persistence import session_manager
+from state import state
 
 
 # --- Tool Functions ---
 
-async def session_save(params: SessionSaveInput) -> str:
+async def session_save(
+    summary: Annotated[str, Field(description="Zusammenfassung des aktuellen Stands (was wurde erreicht, was steht an)")] = "",
+) -> str:
     """Speichert die aktuelle Session explizit mit optionaler Zusammenfassung.
     
     Die Session wird auch automatisch nach jedem Tool-Aufruf gespeichert.
@@ -41,7 +25,7 @@ async def session_save(params: SessionSaveInput) -> str:
     if not session_manager.current_session:
         return "Keine aktive Session. Nutze 'cd' um in ein Projektverzeichnis zu wechseln."
     
-    success = session_manager.save_session(params.summary)
+    success = session_manager.save_session(summary)
     
     if success:
         session = session_manager.current_session
@@ -54,15 +38,17 @@ async def session_save(params: SessionSaveInput) -> str:
         result += f"   📝 {len(session.memories)} Gedächtnis-Einträge\n"
         result += f"   📋 {len(session.tool_log)} Tool-Aufrufe geloggt"
         
-        if params.summary:
-            result += f"\n\n**Zusammenfassung:**\n{params.summary}"
+        if summary:
+            result += f"\n\n**Zusammenfassung:**\n{summary}"
         
         return result
     else:
         return "Fehler beim Speichern der Session."
 
 
-async def session_resume(params: SessionResumeInput) -> str:
+async def session_resume(
+    project_name: Annotated[Optional[str], Field(description="Name des Projekts. Ohne Angabe: letzte Session.")] = None,
+) -> str:
     """Lädt eine frühere Session und stellt den Kontext wieder her.
     
     Ohne Angabe eines Projektnamens wird die zuletzt aktualisierte Session geladen.
@@ -74,11 +60,11 @@ async def session_resume(params: SessionResumeInput) -> str:
         return "Keine gespeicherten Sessions gefunden."
     
     # Projekt auswählen
-    if params.project_name:
-        target = next((s for s in sessions if s["name"] == params.project_name), None)
+    if project_name:
+        target = next((s for s in sessions if s["name"] == project_name), None)
         if not target:
             available = ", ".join(s["name"] for s in sessions[:5])
-            return f"Session '{params.project_name}' nicht gefunden.\nVerfügbar: {available}"
+            return f"Session '{project_name}' nicht gefunden.\nVerfügbar: {available}"
     else:
         target = sessions[0]  # Neueste
     

@@ -1,7 +1,7 @@
 """Persistenz-Modul für Session und Memory."""
 
-from .models import SessionData, MemoryEntry, ToolCall
-from .session_manager import SessionManager, session_manager
+from persistence.models import SessionData, MemoryEntry, ToolCall
+from persistence.session_manager import SessionManager, session_manager
 
 __all__ = [
     "SessionData",

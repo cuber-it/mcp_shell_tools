@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """
-workstation_mcp - MCP Server für lokale Entwicklungsarbeit.
-
 Bietet Claude Zugriff auf:
 - Dateisystem (lesen, schreiben, suchen)
 - Präzises Editieren (str_replace)
@@ -9,38 +7,39 @@ Bietet Claude Zugriff auf:
 - Projekt-Kontext (CLAUDE.md)
 - Persistentes Gedächtnis (Memory)
 - Session-Management
-
-Starten mit: python -m workstation_mcp.server
-Oder nach Installation: workstation-mcp
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
 
 from functools import wraps
 from typing import Any, Callable
 
 from mcp.server.fastmcp import FastMCP
 
-from .persistence import session_manager
+from persistence import session_manager
 
 # Tool-Imports
-from .tools.filesystem import (
+from tools.filesystem import (
     file_read, 
     file_write, 
     file_list, 
     glob_search,
 )
-from .tools.editor import (
+from tools.editor import (
     str_replace, 
     diff_preview,
 )
-from .tools.search import grep
-from .tools.shell import shell_exec
-from .tools.project import cd, cwd, project_init
-from .tools.memory import (
+from tools.search import grep
+from tools.shell import shell_exec
+from tools.project import cd, cwd, project_init
+from tools.memory import (
     memory_add, 
     memory_show, 
     memory_clear,
 )
-from .tools.session import (
+from tools.session import (
     session_save,
     session_resume,
     session_list,
@@ -178,4 +177,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Server beendet.")

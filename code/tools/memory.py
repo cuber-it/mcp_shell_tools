@@ -1,26 +1,21 @@
 """Memory-Tools: Erkenntnisse speichern und abrufen."""
 
-from typing import Literal
+from typing import Literal, Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from ..persistence import session_manager
-
-
-# --- Input Models ---
-
-class MemoryAddInput(BaseModel):
-    """Input für memory_add."""
-    content: str = Field(..., description="Die zu speichernde Erkenntnis, Entscheidung oder Notiz")
-    category: Literal["note", "decision", "question", "todo"] = Field(
-        default="note",
-        description="Kategorie: note (Erkenntnis), decision (Entscheidung), question (Offene Frage), todo (Nächster Schritt)"
-    )
+from persistence import session_manager
 
 
 # --- Tool Functions ---
 
-async def memory_add(params: MemoryAddInput) -> str:
+async def memory_add(
+    content: Annotated[str, Field(description="Die zu speichernde Erkenntnis, Entscheidung oder Notiz")],
+    category: Annotated[
+        Literal["note", "decision", "question", "todo"],
+        Field(description="Kategorie: note (Erkenntnis), decision (Entscheidung), question (Offene Frage), todo (Nächster Schritt)")
+    ] = "note",
+) -> str:
     """Speichert eine Erkenntnis, Entscheidung oder Notiz.
     
     Kategorien:
@@ -37,7 +32,7 @@ async def memory_add(params: MemoryAddInput) -> str:
     if not session_manager.current_session:
         return "Fehler: Keine aktive Session. Nutze erst 'cd' um in ein Projektverzeichnis zu wechseln."
     
-    success = session_manager.add_memory(params.content, params.category)
+    success = session_manager.add_memory(content, category)
     
     if success:
         category_emoji = {
@@ -46,8 +41,8 @@ async def memory_add(params: MemoryAddInput) -> str:
             "question": "❓",
             "todo": "📋"
         }
-        emoji = category_emoji.get(params.category, "📝")
-        return f"{emoji} Gespeichert ({params.category}): {params.content[:100]}{'...' if len(params.content) > 100 else ''}"
+        emoji = category_emoji.get(category, "📝")
+        return f"{emoji} Gespeichert ({category}): {content[:100]}{'...' if len(content) > 100 else ''}"
     else:
         return "Fehler beim Speichern."
 

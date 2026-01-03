@@ -1,0 +1,25 @@
+# MCP Shell Tools - Beispiel-Konfiguration
+
+# Erlaubte Pfade für Dateizugriff
+allowed_paths:
+  - "~/Workspace"
+  - "~/Documents"
+
+# Shell-Einstellungen
+shell:
+  timeout: 30
+  working_dir: "~/Workspace"
+
+# Editor-Einstellungen
+editor:
+  default: "code"  # oder "vim", "nano", etc.
+
+# Session-Einstellungen
+session:
+  data_dir: "~/.mcp_shell_tools"
+  auto_save: true
+
+# Limits
+limits:
+  max_file_size: 100000
+  max_output_lines: 500
