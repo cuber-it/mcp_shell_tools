@@ -1,26 +1,32 @@
 """Session-Management: Speichern, Laden, Auflisten."""
 
 import json
+import fcntl
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from code.persistence.models import SessionData, MemoryEntry
 
+# Minimaler Abstand zwischen Auto-Saves in Sekunden
+AUTO_SAVE_THROTTLE_SECONDS = 5
+
 
 class SessionManager:
     """Verwaltet Session-Persistenz.
-    
+
     Sessions werden unter ~/.workstation_mcp/sessions/<projekt>/ gespeichert.
     """
-    
+
     def __init__(self, base_dir: Optional[Path] = None):
         self.base_dir = base_dir or Path.home() / ".workstation_mcp"
         self.sessions_dir = self.base_dir / "sessions"
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.current_session: Optional[SessionData] = None
         self.current_project: Optional[str] = None
+        self._last_save: Optional[datetime] = None
     
     def _project_dir(self, project_name: str) -> Path:
         """Gibt das Verzeichnis für ein Projekt zurück."""
@@ -70,32 +76,42 @@ class SessionManager:
         except Exception:
             return None
     
-    def save_session(self, summary: str = "") -> bool:
-        """Speichert die aktuelle Session."""
+    def save_session(self, summary: str = "", force: bool = False) -> bool:
+        """Speichert die aktuelle Session.
+
+        Args:
+            summary: Optionale Zusammenfassung
+            force: True = immer speichern, False = Throttling beachten
+        """
         if not self.current_session or not self.current_project:
             return False
-        
+
         if summary:
             self.current_session.summary = summary
-        
+
         self.current_session.updated_at = datetime.now()
-        
+
         project_dir = self._project_dir(self.current_project)
         project_dir.mkdir(parents=True, exist_ok=True)
-        
-        # JSON speichern
+
+        # JSON speichern mit File-Locking
         session_file = self._session_file(self.current_project)
         try:
-            session_file.write_text(
-                self.current_session.model_dump_json(indent=2),
-                encoding="utf-8"
-            )
-        except Exception:
+            with open(session_file, 'w', encoding='utf-8') as f:
+                # Exclusive Lock für Schreibzugriff
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                try:
+                    f.write(self.current_session.model_dump_json(indent=2))
+                finally:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            self._last_save = datetime.now()
+        except Exception as e:
+            print(f"Session-Speicherfehler: {e}", file=sys.stderr)
             return False
-        
+
         # Markdown generieren
         self._write_memory_markdown()
-        
+
         return True
     
     def _write_memory_markdown(self) -> None:
@@ -194,8 +210,16 @@ class SessionManager:
         """Loggt einen Tool-Aufruf."""
         if self.current_session:
             self.current_session.log_tool_call(tool, params, result_summary, success)
-            # Auto-Save nach jedem Tool-Aufruf
-            self.save_session()
+            # Auto-Save mit Throttling (nicht bei jedem Aufruf)
+            if self._should_auto_save():
+                self.save_session()
+
+    def _should_auto_save(self) -> bool:
+        """Prüft ob Auto-Save durchgeführt werden soll (Throttling)."""
+        if self._last_save is None:
+            return True
+        elapsed = (datetime.now() - self._last_save).total_seconds()
+        return elapsed >= AUTO_SAVE_THROTTLE_SECONDS
     
     def clear_memories(self) -> bool:
         """Löscht alle Memory-Einträge."""
