@@ -14,6 +14,18 @@ class TestBlockedPatterns:
         assert not is_safe
         assert "Blocked" in msg
 
+    def test_rm_rf_double_slash_blocked(self):
+        """rm -rf // wird geblockt."""
+        is_safe, msg = check_command_safety("rm -rf //")
+        assert not is_safe
+        assert "Blocked" in msg
+
+    def test_rm_rf_dot_slash_blocked(self):
+        """rm -rf /./ wird geblockt."""
+        is_safe, msg = check_command_safety("rm -rf /./")
+        assert not is_safe
+        assert "Blocked" in msg
+
     def test_rm_rf_home_blocked(self):
         """rm -rf ~ wird geblockt."""
         is_safe, msg = check_command_safety("rm -rf ~")
@@ -32,6 +44,12 @@ class TestBlockedPatterns:
         assert not is_safe
         assert "Blocked" in msg
 
+    def test_dd_of_dev_only_blocked(self):
+        """dd of=/dev/sda (ohne if=) wird geblockt."""
+        is_safe, msg = check_command_safety("dd of=/dev/sda bs=1M")
+        assert not is_safe
+        assert "Blocked" in msg
+
     def test_mkfs_blocked(self):
         """mkfs wird geblockt."""
         is_safe, msg = check_command_safety("mkfs.ext4 /dev/sda1")
@@ -44,9 +62,33 @@ class TestBlockedPatterns:
         assert not is_safe
         assert "Blocked" in msg
 
+    def test_chmod_R_777_etc_blocked(self):
+        """chmod -R 777 /etc wird geblockt."""
+        is_safe, msg = check_command_safety("chmod -R 777 /etc")
+        assert not is_safe
+        assert "Blocked" in msg
+
     def test_redirect_dev_blocked(self):
         """> /dev/sda wird geblockt."""
         is_safe, msg = check_command_safety("echo x > /dev/sda")
+        assert not is_safe
+        assert "Blocked" in msg
+
+    def test_cat_redirect_dev_blocked(self):
+        """cat > /dev/sda wird geblockt."""
+        is_safe, msg = check_command_safety("cat file.txt > /dev/sda")
+        assert not is_safe
+        assert "Blocked" in msg
+
+    def test_tee_dev_blocked(self):
+        """tee /dev/sda wird geblockt."""
+        is_safe, msg = check_command_safety("echo x | tee /dev/sda")
+        assert not is_safe
+        assert "Blocked" in msg
+
+    def test_pipe_dd_dev_blocked(self):
+        """Pipe zu dd of=/dev wird geblockt."""
+        is_safe, msg = check_command_safety("cat image.iso | dd of=/dev/sda")
         assert not is_safe
         assert "Blocked" in msg
 
