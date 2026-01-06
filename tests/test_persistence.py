@@ -4,12 +4,12 @@ import json
 import pytest
 from pathlib import Path
 
-from workstation_mcp.persistence.models import (
+from code.persistence.models import (
     MemoryEntry,
     ToolCall,
     SessionData,
 )
-from workstation_mcp.persistence.session_manager import SessionManager
+from code.persistence.session_manager import SessionManager
 
 
 class TestMemoryEntry:

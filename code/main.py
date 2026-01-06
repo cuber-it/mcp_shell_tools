@@ -11,8 +11,8 @@ import argparse
 import sys
 from pathlib import Path
 
-# code/ zum Pfad hinzufügen für direkte Ausführung
-sys.path.insert(0, str(Path(__file__).parent))
+# Projekt-Root zum Pfad hinzufügen für direkte Ausführung
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -66,7 +66,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def cmd_serve(args):
     """Startet den MCP-Server."""
-    from server import mcp
+    from code.server import mcp
     
     if args.http:
         print(f"Starte MCP-Server (HTTP auf Port {args.http})...")

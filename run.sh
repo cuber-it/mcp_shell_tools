@@ -19,4 +19,4 @@ if [ -z "$DISPLAY" ]; then
     fi
 fi
 
-exec "$SCRIPT_DIR/.venv/bin/python" "$SCRIPT_DIR/code/main.py" "$@" serve
+cd "$SCRIPT_DIR" && exec "$SCRIPT_DIR/.venv/bin/python" "$SCRIPT_DIR/code/main.py" serve "$@"

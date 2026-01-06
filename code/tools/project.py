@@ -4,9 +4,9 @@ from typing import Annotated
 
 from pydantic import Field
 
-from config import PROJECT_FILE
-from state import state
-from persistence import session_manager
+from code.config import PROJECT_FILE
+from code.state import state
+from code.persistence import session_manager
 
 
 # --- Tool Functions ---

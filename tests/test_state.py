@@ -3,8 +3,8 @@
 import pytest
 from pathlib import Path
 
-from workstation_mcp.state import WorkstationState
-from workstation_mcp.config import PROJECT_FILE
+from code.state import WorkstationState
+from code.config import PROJECT_FILE
 
 
 class TestWorkstationState:

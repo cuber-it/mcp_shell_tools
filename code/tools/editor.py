@@ -5,8 +5,8 @@ from typing import Annotated
 
 from pydantic import Field
 
-from config import DEFAULT_ENCODING
-from utils.paths import resolve_path
+from code.config import DEFAULT_ENCODING
+from code.utils.paths import resolve_path
 
 
 # --- Tool Functions ---

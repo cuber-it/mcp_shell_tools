@@ -9,37 +9,33 @@ Bietet Claude Zugriff auf:
 - Session-Management
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-
 from functools import wraps
 from typing import Any, Callable
 
 from mcp.server.fastmcp import FastMCP
 
-from persistence import session_manager
+from code.persistence import session_manager
 
 # Tool-Imports
-from tools.filesystem import (
-    file_read, 
-    file_write, 
-    file_list, 
+from code.tools.filesystem import (
+    file_read,
+    file_write,
+    file_list,
     glob_search,
 )
-from tools.editor import (
-    str_replace, 
+from code.tools.editor import (
+    str_replace,
     diff_preview,
 )
-from tools.search import grep
-from tools.shell import shell_exec
-from tools.project import cd, cwd, project_init
-from tools.memory import (
-    memory_add, 
-    memory_show, 
+from code.tools.search import grep
+from code.tools.shell import shell_exec
+from code.tools.project import cd, cwd, project_init
+from code.tools.memory import (
+    memory_add,
+    memory_show,
     memory_clear,
 )
-from tools.session import (
+from code.tools.session import (
     session_save,
     session_resume,
     session_list,

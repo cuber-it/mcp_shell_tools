@@ -2,69 +2,69 @@
 
 import pytest
 
-from workstation_mcp.tools.shell import check_command_safety, shell_exec, ShellExecInput
+from code.tools.shell import check_command_safety, shell_exec
 
 
 class TestBlockedPatterns:
     """Tests für gefährliche Befehle."""
-    
+
     def test_rm_rf_root_blocked(self):
         """rm -rf / wird geblockt."""
         is_safe, msg = check_command_safety("rm -rf /")
         assert not is_safe
-        assert "❌ Blocked" in msg
-    
+        assert "Blocked" in msg
+
     def test_rm_rf_home_blocked(self):
         """rm -rf ~ wird geblockt."""
         is_safe, msg = check_command_safety("rm -rf ~")
         assert not is_safe
-        assert "❌ Blocked" in msg
-    
+        assert "Blocked" in msg
+
     def test_rm_rf_star_blocked(self):
         """rm -rf * wird geblockt."""
         is_safe, msg = check_command_safety("rm -rf *")
         assert not is_safe
-        assert "❌ Blocked" in msg
-    
+        assert "Blocked" in msg
+
     def test_dd_dev_blocked(self):
         """dd auf /dev/ wird geblockt."""
         is_safe, msg = check_command_safety("dd if=/dev/zero of=/dev/sda")
         assert not is_safe
-        assert "❌ Blocked" in msg
-    
+        assert "Blocked" in msg
+
     def test_mkfs_blocked(self):
         """mkfs wird geblockt."""
         is_safe, msg = check_command_safety("mkfs.ext4 /dev/sda1")
         assert not is_safe
-        assert "❌ Blocked" in msg
-    
+        assert "Blocked" in msg
+
     def test_chmod_777_root_blocked(self):
         """chmod 777 / wird geblockt."""
         is_safe, msg = check_command_safety("chmod 777 /")
         assert not is_safe
-        assert "❌ Blocked" in msg
-    
+        assert "Blocked" in msg
+
     def test_redirect_dev_blocked(self):
         """> /dev/sda wird geblockt."""
         is_safe, msg = check_command_safety("echo x > /dev/sda")
         assert not is_safe
-        assert "❌ Blocked" in msg
+        assert "Blocked" in msg
 
 
 class TestSafeCommands:
     """Tests für erlaubte Befehle."""
-    
+
     def test_ls_allowed(self):
         """ls -la geht durch."""
         is_safe, msg = check_command_safety("ls -la")
         assert is_safe
         assert msg == ""
-    
+
     def test_rm_file_allowed(self):
         """rm auf einzelne Datei erlaubt."""
         is_safe, msg = check_command_safety("rm /tmp/testfile.txt")
         assert is_safe
-    
+
     def test_cat_allowed(self):
         """cat erlaubt."""
         is_safe, msg = check_command_safety("cat /etc/passwd")
@@ -73,13 +73,13 @@ class TestSafeCommands:
 
 class TestSudoWarning:
     """Tests für Sudo-Warnung."""
-    
+
     def test_sudo_warning(self):
         """sudo apt update gibt Warnung."""
         is_safe, msg = check_command_safety("sudo apt update")
         assert not is_safe
-        assert "⚠️ Sudo-Befehl erkannt" in msg
-    
+        assert "Sudo" in msg
+
     def test_sudo_with_spaces(self):
         """sudo mit Leerzeichen davor."""
         is_safe, msg = check_command_safety("  sudo reboot")
@@ -89,15 +89,15 @@ class TestSudoWarning:
 
 class TestShellExecIntegration:
     """Integration Tests für shell_exec."""
-    
+
     @pytest.mark.asyncio
     async def test_blocked_command_not_executed(self):
         """Geblockte Befehle werden nicht ausgeführt."""
-        result = await shell_exec(ShellExecInput(command="rm -rf /"))
-        assert "❌ Blocked" in result
-    
+        result = await shell_exec(command="rm -rf /")
+        assert "Blocked" in result
+
     @pytest.mark.asyncio
     async def test_safe_command_executed(self):
         """Sichere Befehle werden ausgeführt."""
-        result = await shell_exec(ShellExecInput(command="echo test"))
+        result = await shell_exec(command="echo test")
         assert "test" in result

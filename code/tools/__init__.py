@@ -1,12 +1,12 @@
 """Tool-Module für workstation_mcp."""
 
-from tools.filesystem import file_read, file_write, file_list, glob_search
-from tools.editor import str_replace, diff_preview
-from tools.search import grep
-from tools.shell import shell_exec
-from tools.project import cd, cwd, project_init
-from tools.memory import memory_add, memory_show, memory_clear
-from tools.session import session_save, session_resume, session_list
+from code.tools.filesystem import file_read, file_write, file_list, glob_search
+from code.tools.editor import str_replace, diff_preview
+from code.tools.search import grep
+from code.tools.shell import shell_exec
+from code.tools.project import cd, cwd, project_init
+from code.tools.memory import memory_add, memory_show, memory_clear
+from code.tools.session import session_save, session_resume, session_list
 
 __all__ = [
     # Filesystem

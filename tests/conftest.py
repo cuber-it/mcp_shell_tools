@@ -60,14 +60,14 @@ def sample_project(temp_dir):
 @pytest.fixture
 def reset_state():
     """Setzt den globalen State zurück."""
-    from workstation_mcp.state import state
-    from workstation_mcp.config import INITIAL_WORKING_DIR
-    
+    from code.state import state
+    from code.config import INITIAL_WORKING_DIR
+
     original_dir = state.working_dir
     original_context = state.project_context
-    
+
     yield state
-    
+
     # Wiederherstellen
     state.working_dir = original_dir
     state.project_context = original_context

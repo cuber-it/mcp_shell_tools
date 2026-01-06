@@ -6,9 +6,9 @@ from typing import Annotated
 
 from pydantic import Field
 
-from config import DEFAULT_ENCODING
-from utils.output import truncate_output
-from utils.paths import resolve_path
+from code.config import DEFAULT_ENCODING
+from code.utils.output import truncate_output
+from code.utils.paths import resolve_path
 
 
 # --- Helper ---
