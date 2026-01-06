@@ -40,6 +40,7 @@ from code.tools.session import (
     session_resume,
     session_list,
 )
+from code.tools.commands import command, settings as command_settings
 
 
 # --- Server Setup ---
@@ -71,26 +72,29 @@ def with_auto_log(tool_name: str, func: Callable) -> Callable:
     async def wrapper(*args, **kwargs):
         # Params sind jetzt direkt in kwargs (flache Signatur)
         params = kwargs.copy()
-        
+
         try:
             result = await func(*args, **kwargs)
-            
+
             # Result-Summary erstellen (erste 50 Zeichen)
             if isinstance(result, str):
                 summary = result[:50].replace('\n', ' ')
             else:
                 summary = str(result)[:50]
-            
-            # Loggen (nur wenn Session aktiv)
+
+            # Session-Log (nur wenn Session aktiv)
             session_manager.log_tool_call(
                 tool=tool_name,
                 params=params,
                 result_summary=summary,
                 success=True
             )
-            
+
+            # File-Log (wenn aktiviert)
+            command_settings.log_call(tool_name, params, summary, True)
+
             return result
-            
+
         except Exception as e:
             session_manager.log_tool_call(
                 tool=tool_name,
@@ -98,8 +102,9 @@ def with_auto_log(tool_name: str, func: Callable) -> Callable:
                 result_summary=str(e)[:50],
                 success=False
             )
+            command_settings.log_call(tool_name, params, str(e)[:50], False)
             raise
-    
+
     return wrapper
 
 
@@ -163,6 +168,9 @@ register_tool("memory_clear", memory_clear, "Gedächtnis löschen", read_only=Fa
 register_tool("session_save", session_save, "Session speichern", read_only=False, log=False)
 register_tool("session_resume", session_resume, "Session laden", read_only=False, log=False)
 register_tool("session_list", session_list, "Sessions auflisten")
+
+# Commands (Slash-Kommandos)
+register_tool("command", command, "Slash-Kommando ausführen", read_only=False, log=False)
 
 
 # --- Entry Point ---

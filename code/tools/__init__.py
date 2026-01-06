@@ -7,11 +7,12 @@ from code.tools.shell import shell_exec
 from code.tools.project import cd, cwd, project_init
 from code.tools.memory import memory_add, memory_show, memory_clear
 from code.tools.session import session_save, session_resume, session_list
+from code.tools.commands import command
 
 __all__ = [
     # Filesystem
     "file_read",
-    "file_write", 
+    "file_write",
     "file_list",
     "glob_search",
     # Editor
@@ -33,4 +34,6 @@ __all__ = [
     "session_save",
     "session_resume",
     "session_list",
+    # Commands
+    "command",
 ]
