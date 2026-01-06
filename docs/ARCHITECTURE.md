@@ -1,8 +1,8 @@
-# workstation_mcp - Architektur
+# mcp_shell_tools - Architektur
 
 ## Übersicht
 
-**workstation_mcp** ist ein MCP-Server (Model Context Protocol), der Claude Desktop lokalen Zugriff auf das Entwicklungssystem ermöglicht. Er bietet Dateisystem-Operationen, Shell-Zugriff, präzises Code-Editing und persistentes Session-Management.
+**mcp_shell_tools** ist ein MCP-Server (Model Context Protocol), der Claude Desktop lokalen Zugriff auf das Entwicklungssystem ermöglicht. Er bietet Dateisystem-Operationen, Shell-Zugriff, präzises Code-Editing und persistentes Session-Management.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -14,7 +14,7 @@
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     workstation_mcp                              │
+│                     mcp_shell_tools                              │
 │                        (FastMCP)                                 │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │                    server.py                              │   │
@@ -38,13 +38,13 @@
 ## Projektstruktur
 
 ```
-workstation_mcp/
+mcp_shell_tools/
 ├── pyproject.toml              # Package-Definition, Dependencies
 ├── requirements.txt            # Direkte Dependencies
 ├── run.sh                      # Startskript für Claude Desktop
 ├── README.md                   # Benutzer-Dokumentation
 │
-└── src/workstation_mcp/
+└── code/
     ├── __init__.py
     ├── server.py               # Haupt-Entry-Point, Tool-Registrierung
     ├── config.py               # Konstanten und Konfiguration
@@ -77,7 +77,7 @@ Der zentrale Entry-Point, basierend auf **FastMCP**:
 - **Instructions**: Workflow-Empfehlungen für Claude
 
 ```python
-mcp = FastMCP("workstation_mcp", instructions="...")
+mcp = FastMCP("mcp_shell_tools", instructions="...")
 
 register_tool("file_read", file_read, "Datei lesen")
 register_tool("shell_exec", shell_exec, "Shell-Befehl", 
@@ -249,7 +249,7 @@ Kernfunktionen:
 {
   "mcpServers": {
     "workstation": {
-      "command": "/home/ucuber/Workspace/ucuber/workstation_mcp/run.sh"
+      "command": "/home/ucuber/Workspace/ucuber/mcp_shell_tools/run.sh"
     }
   }
 }

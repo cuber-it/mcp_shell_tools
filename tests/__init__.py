@@ -1,1 +1,1 @@
-"""Tests für workstation_mcp."""
+"""Tests für mcp_shell_tools."""

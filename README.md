@@ -1,4 +1,4 @@
-# workstation_mcp
+# mcp_shell_tools
 
 MCP Server für lokale Entwicklungsarbeit. Gibt Claude.ai ähnliche Fähigkeiten wie Claude Code, plus persistentes Gedächtnis und Session-Management.
 
@@ -48,7 +48,7 @@ MCP Server für lokale Entwicklungsarbeit. Gibt Claude.ai ähnliche Fähigkeiten
 
 ```bash
 # Repository klonen oder ZIP entpacken
-cd workstation_mcp
+cd mcp_shell_tools
 
 # venv erstellen und aktivieren
 python -m venv .venv
@@ -69,7 +69,7 @@ pip install -e .
 workstation-mcp
 
 # Oder direkt
-python -m workstation_mcp.server
+python -m mcp_shell_tools.server
 ```
 
 ## Claude Desktop Konfiguration
@@ -79,14 +79,14 @@ Füge zu `~/.config/Claude/claude_desktop_config.json` hinzu:
 ### Variante 1: Mit Wrapper-Script (empfohlen)
 
 ```bash
-chmod +x /pfad/zu/workstation_mcp/run.sh
+chmod +x /pfad/zu/mcp_shell_tools/run.sh
 ```
 
 ```json
 {
   "mcpServers": {
     "workstation": {
-      "command": "/pfad/zu/workstation_mcp/run.sh"
+      "command": "/pfad/zu/mcp_shell_tools/run.sh"
     }
   }
 }
@@ -98,8 +98,8 @@ chmod +x /pfad/zu/workstation_mcp/run.sh
 {
   "mcpServers": {
     "workstation": {
-      "command": "/pfad/zu/workstation_mcp/.venv/bin/python",
-      "args": ["-m", "workstation_mcp.server"]
+      "command": "/pfad/zu/mcp_shell_tools/.venv/bin/python",
+      "args": ["-m", "mcp_shell_tools.server"]
     }
   }
 }
@@ -216,13 +216,13 @@ Diese wird automatisch geladen wenn du mit `cd` ins Verzeichnis wechselst.
 ## Projektstruktur
 
 ```
-workstation_mcp/
+mcp_shell_tools/
 ├── pyproject.toml
 ├── requirements.txt
 ├── run.sh
 ├── README.md
 ├── .gitignore
-└── src/workstation_mcp/
+└── code/
     ├── __init__.py
     ├── server.py           # Entry Point
     ├── config.py           # Konstanten

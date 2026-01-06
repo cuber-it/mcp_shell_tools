@@ -1,4 +1,4 @@
-"""Konfiguration und Konstanten für workstation_mcp."""
+"""Konfiguration und Konstanten für mcp_shell_tools."""
 
 import re
 from pathlib import Path

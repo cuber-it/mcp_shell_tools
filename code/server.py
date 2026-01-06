@@ -46,7 +46,7 @@ from code.tools.commands import command, settings as command_settings
 # --- Server Setup ---
 
 mcp = FastMCP(
-    "workstation_mcp",
+    "mcp_shell_tools",
     instructions="""Workstation MCP Server für lokale Entwicklung.
 
 Workflow-Empfehlungen:

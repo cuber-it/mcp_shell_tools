@@ -1,4 +1,4 @@
-"""Globaler Zustand für workstation_mcp."""
+"""Globaler Zustand für mcp_shell_tools."""
 
 from dataclasses import dataclass, field
 from pathlib import Path

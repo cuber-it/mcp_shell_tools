@@ -1,4 +1,4 @@
-"""Pytest Fixtures für workstation_mcp Tests."""
+"""Pytest Fixtures für mcp_shell_tools Tests."""
 
 import tempfile
 from pathlib import Path

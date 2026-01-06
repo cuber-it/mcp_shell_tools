@@ -1,4 +1,4 @@
-"""Tool-Module für workstation_mcp."""
+"""Tool-Module für mcp_shell_tools."""
 
 from code.tools.filesystem import file_read, file_write, file_list, glob_search
 from code.tools.editor import str_replace, diff_preview

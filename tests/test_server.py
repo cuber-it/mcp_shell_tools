@@ -49,4 +49,4 @@ class TestToolRegistration:
         # FastMCP speichert Tools intern
         # Wir prüfen nur, dass der Server existiert
         assert mcp is not None
-        assert mcp.name == "workstation_mcp"
+        assert mcp.name == "mcp_shell_tools"
