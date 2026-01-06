@@ -157,7 +157,7 @@ str_replace(
 Sessions und Gedächtnis werden automatisch gespeichert unter:
 
 ```
-~/.workstation_mcp/
+~/.mcp_shell_tools/
 └── sessions/
     └── stocktracker/
         ├── session.json    # Strukturierte Daten

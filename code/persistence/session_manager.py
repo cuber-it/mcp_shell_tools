@@ -18,11 +18,11 @@ AUTO_SAVE_THROTTLE_SECONDS = 5
 class SessionManager:
     """Verwaltet Session-Persistenz.
 
-    Sessions werden unter ~/.workstation_mcp/sessions/<projekt>/ gespeichert.
+    Sessions werden unter ~/.mcp_shell_tools/sessions/<projekt>/ gespeichert.
     """
 
     def __init__(self, base_dir: Optional[Path] = None):
-        self.base_dir = base_dir or Path.home() / ".workstation_mcp"
+        self.base_dir = base_dir or Path.home() / ".mcp_shell_tools"
         self.sessions_dir = self.base_dir / "sessions"
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
 

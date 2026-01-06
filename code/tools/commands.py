@@ -30,8 +30,8 @@ class CommandSettings:
             if file_path:
                 self.log_file = Path(file_path).expanduser().resolve()
             else:
-                # Default: ~/.workstation_mcp/tool.log
-                self.log_file = Path.home() / ".workstation_mcp" / "tool.log"
+                # Default: ~/.mcp_shell_tools/tool.log
+                self.log_file = Path.home() / ".mcp_shell_tools" / "tool.log"
 
             self.log_file.parent.mkdir(parents=True, exist_ok=True)
             self.log_enabled = True

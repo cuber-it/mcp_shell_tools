@@ -31,7 +31,7 @@
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Lokales Dateisystem                           │
-│              ~/.workstation_mcp/sessions/                        │
+│              ~/.mcp_shell_tools/sessions/                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -185,12 +185,12 @@ class SessionData(BaseModel):
 
 #### Session Manager (`session_manager.py`)
 
-Verwaltet Session-Persistenz unter `~/.workstation_mcp/sessions/<projekt>/`:
+Verwaltet Session-Persistenz unter `~/.mcp_shell_tools/sessions/<projekt>/`:
 
 ```
-~/.workstation_mcp/
+~/.mcp_shell_tools/
 └── sessions/
-    └── workstation_mcp/           # Beispiel-Projekt
+    └── mcp_shell_tools/           # Beispiel-Projekt
         ├── session.json           # Kompletter Zustand (JSON)
         └── memory.md              # Lesbare Markdown-Zusammenfassung
 ```
@@ -220,8 +220,8 @@ Kernfunktionen:
                         │                                │
                         ▼                                ▼
                 ┌───────────────┐              ┌─────────────────┐
-                │  Dateisystem  │              │ ~/.workstation_ │
-                │  (lokal)      │              │   mcp/sessions/ │
+                │  Dateisystem  │              │ ~/.mcp_shell_   │
+                │  (lokal)      │              │  tools/sessions/│
                 └───────────────┘              └─────────────────┘
 ```
 
