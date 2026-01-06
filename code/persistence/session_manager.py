@@ -2,12 +2,14 @@
 
 import json
 import fcntl
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from code.persistence.models import SessionData, MemoryEntry
+from code.utils.logging import get_logger
+
+logger = get_logger("persistence.session_manager")
 
 # Minimaler Abstand zwischen Auto-Saves in Sekunden
 AUTO_SAVE_THROTTLE_SECONDS = 5
@@ -105,8 +107,9 @@ class SessionManager:
                 finally:
                     fcntl.flock(f.fileno(), fcntl.LOCK_UN)
             self._last_save = datetime.now()
+            logger.debug(f"Session gespeichert: {self.current_project}")
         except Exception as e:
-            print(f"Session-Speicherfehler: {e}", file=sys.stderr)
+            logger.error(f"Session-Speicherfehler: {e}")
             return False
 
         # Markdown generieren

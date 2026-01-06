@@ -13,6 +13,9 @@ from code.config import (
 )
 from code.state import state
 from code.utils.output import truncate_output
+from code.utils.logging import get_logger
+
+logger = get_logger("tools.shell")
 
 
 def check_command_safety(command: str) -> tuple[bool, str]:
@@ -51,6 +54,7 @@ async def shell_exec(
     # Sicherheitsprüfung
     is_safe, message = check_command_safety(command)
     if not is_safe:
+        logger.warning(f"Blocked command: {command[:50]}")
         return f"💻 $ {command}\n\n{message}"
     
     # Working Directory bestimmen
@@ -77,6 +81,7 @@ async def shell_exec(
         except asyncio.TimeoutError:
             proc.kill()
             await proc.wait()
+            logger.warning(f"Command timeout after {timeout}s: {command[:50]}")
             return f"💻 $ {command}\n\nFehler: Timeout nach {timeout}s - Prozess wurde beendet"
         
         result_parts = [f"💻 $ {command}"]
