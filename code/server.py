@@ -68,6 +68,8 @@ Tool-Aufrufe werden automatisch geloggt und persistiert.
 
 def with_auto_log(tool_name: str, func: Callable) -> Callable:
     """Wrapper der Tool-Aufrufe automatisch loggt."""
+    import asyncio
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         # Params sind jetzt direkt in kwargs (flache Signatur)
@@ -76,11 +78,11 @@ def with_auto_log(tool_name: str, func: Callable) -> Callable:
         try:
             result = await func(*args, **kwargs)
 
-            # Result-Summary erstellen (erste 50 Zeichen)
-            if isinstance(result, str):
-                summary = result[:50].replace('\n', ' ')
-            else:
-                summary = str(result)[:50]
+            # Result als String
+            result_str = result if isinstance(result, str) else str(result)
+            
+            # Summary für Session-Log (kurz)
+            summary = result_str[:50].replace('\n', ' ')
 
             # Session-Log (nur wenn Session aktiv)
             session_manager.log_tool_call(
@@ -90,19 +92,23 @@ def with_auto_log(tool_name: str, func: Callable) -> Callable:
                 success=True
             )
 
-            # File-Log (wenn aktiviert)
-            command_settings.log_call(tool_name, params, summary, True)
+            # File-Log + Transcript (vollständiges Result für Transcript!)
+            command_settings.log_call(tool_name, params, result_str, True)
 
             return result
 
+        except asyncio.CancelledError:
+            # Request wurde abgebrochen - nicht loggen, direkt weitergeben
+            raise
         except Exception as e:
+            error_str = str(e)
             session_manager.log_tool_call(
                 tool=tool_name,
                 params=params,
-                result_summary=str(e)[:50],
+                result_summary=error_str[:50],
                 success=False
             )
-            command_settings.log_call(tool_name, params, str(e)[:50], False)
+            command_settings.log_call(tool_name, params, error_str, False)
             raise
 
     return wrapper
@@ -184,4 +190,7 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
+        # Cleanup bei Ctrl+C
+        from code.tools.shell import cleanup_all_processes
+        cleanup_all_processes()
         print("Server beendet.")

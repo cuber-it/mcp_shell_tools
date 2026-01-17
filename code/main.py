@@ -5,14 +5,49 @@ MCP-Server für lokale Entwicklungsarbeit - Dateisystem, Shell, Editor.
 
 Aufruf:
     python code/main.py serve                    # MCP-Server starten (stdio)
-    python code/main.py serve --http 8080        # HTTP-Modus
 """
 import argparse
+import asyncio
+import signal
 import sys
 from pathlib import Path
 
 # Projekt-Root zum Pfad hinzufügen für direkte Ausführung
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Flag für Shutdown
+_shutdown_requested = False
+
+
+def _signal_handler(signum, frame):
+    """Handler für SIGTERM/SIGINT - initiiert sauberen Shutdown."""
+    global _shutdown_requested
+
+    sig_name = signal.Signals(signum).name
+    print(f"\n[{sig_name}] Shutdown angefordert...", file=sys.stderr)
+
+    if _shutdown_requested:
+        # Zweites Signal = force exit
+        print("Force exit!", file=sys.stderr)
+        sys.exit(1)
+
+    _shutdown_requested = True
+
+    # Cleanup von laufenden Prozessen
+    try:
+        from code.tools.shell import cleanup_all_processes
+        cleanup_all_processes()
+    except Exception as e:
+        print(f"Cleanup-Fehler: {e}", file=sys.stderr)
+
+    # Event-Loop beenden falls vorhanden
+    try:
+        loop = asyncio.get_running_loop()
+        loop.stop()
+    except RuntimeError:
+        pass  # Kein laufender Loop
+
+    sys.exit(0)
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -21,9 +56,8 @@ def create_parser() -> argparse.ArgumentParser:
         prog="mcp-shell-tools",
         description="MCP-Server für lokale Entwicklungsarbeit. "
                     "Dateisystem, Shell, Editor.",
-        epilog="Beispiele:\n"
-               "  %(prog)s serve                     Startet den MCP-Server\n"
-               "  %(prog)s serve --http 8080         HTTP-Modus auf Port 8080\n",
+        epilog="Beispiel:\n"
+               "  %(prog)s serve                     Startet den MCP-Server\n",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     
@@ -50,15 +84,7 @@ def create_parser() -> argparse.ArgumentParser:
     serve_parser = subparsers.add_parser(
         "serve",
         help="MCP-Server starten",
-        description="Startet den MCP-Server. Standard: stdio-Modus für Claude Desktop.",
-    )
-    serve_parser.add_argument(
-        "--http",
-        type=int,
-        nargs="?",
-        const=8080,
-        metavar="PORT",
-        help="HTTP-Modus statt stdio (Standard-Port: 8080)",
+        description="Startet den MCP-Server im stdio-Modus für Claude Desktop.",
     )
     
     return parser
@@ -67,14 +93,14 @@ def create_parser() -> argparse.ArgumentParser:
 def cmd_serve(args):
     """Startet den MCP-Server."""
     from code.server import mcp
-    
-    if args.http:
-        print(f"Starte MCP-Server (HTTP auf Port {args.http})...")
-        mcp.run(transport="sse", port=args.http)
-    else:
-        if args.verbose:
-            print("Starte MCP-Server (stdio)...", file=sys.stderr)
-        mcp.run()
+
+    # Signal-Handler registrieren für sauberen Shutdown
+    signal.signal(signal.SIGTERM, _signal_handler)
+    signal.signal(signal.SIGINT, _signal_handler)
+
+    if args.verbose:
+        print("Starte MCP-Server (stdio)...", file=sys.stderr)
+    mcp.run()
 
 
 def main() -> int:
@@ -93,7 +119,13 @@ def main() -> int:
     try:
         return commands[args.command](args) or 0
     except KeyboardInterrupt:
-        print("\nServer beendet.")
+        # Cleanup bei Ctrl+C
+        try:
+            from code.tools.shell import cleanup_all_processes
+            cleanup_all_processes()
+        except Exception:
+            pass
+        print("\nServer beendet.", file=sys.stderr)
         return 0
     except Exception as e:
         print(f"Fehler: {e}", file=sys.stderr)
